@@ -154,6 +154,7 @@ function renderNotes() {
     } else {
         notesGrid.innerHTML = filteredNotes.map(note => createNoteCardHTML(note)).join('');
     }
+    renderWeeklyReport();
 }
 
 function createNoteCardHTML(note) {
@@ -510,29 +511,46 @@ function renderPriorityNotes() {
 
 function renderWeeklyReport() {
     if (!weeklyReportSection) return;
+
+    // Only show on dashboard
+    if (currentView !== 'dashboard') {
+        weeklyReportSection.style.display = 'none';
+        return;
+    }
+
+    weeklyReportSection.style.display = 'block';
+
     const now = new Date();
     const sevenDaysAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
     const weekNotes = notes.filter(n => new Date(n.date) >= sevenDaysAgo);
 
-    if (weekNotes.length === 0) {
-        weeklyReportSection.style.display = 'none';
-        return;
+    let notesCount = '----';
+    let activeDay = '----';
+    let topTopic = '----';
+    let rate = '----';
+    let insightText = 'Capture your first note to see weekly insights!';
+
+    if (weekNotes.length > 0) {
+        notesCount = weekNotes.length;
+
+        const dayCounts = {};
+        weekNotes.forEach(n => {
+            const day = new Date(n.date).toLocaleDateString('en-US', { weekday: 'long' });
+            dayCounts[day] = (dayCounts[day] || 0) + 1;
+        });
+        const sortedDays = Object.entries(dayCounts).sort((a, b) => b[1] - a[1]);
+        const mostActiveDayFull = sortedDays[0][0];
+        activeDay = mostActiveDayFull.slice(0, 3);
+
+        const tagCounts = {};
+        weekNotes.forEach(n => n.tags.forEach(t => { tagCounts[t] = (tagCounts[t] || 0) + 1; }));
+        const sortedTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
+        topTopic = sortedTags.length > 0 ? '#' + sortedTags[0][0] : '----';
+
+        const completedCount = weekNotes.filter(n => n.isCompleted).length;
+        rate = Math.round((completedCount / weekNotes.length) * 100) + '%';
+        insightText = `You were most productive on <strong>${mostActiveDayFull}</strong>.`;
     }
-    weeklyReportSection.style.display = 'block';
-
-    const dayCounts = {};
-    weekNotes.forEach(n => {
-        const day = new Date(n.date).toLocaleDateString('en-US', { weekday: 'long' });
-        dayCounts[day] = (dayCounts[day] || 0) + 1;
-    });
-    const mostActiveDay = Object.entries(dayCounts).sort((a, b) => b[1] - a[1])[0][0];
-
-    const tagCounts = {};
-    weekNotes.forEach(n => n.tags.forEach(t => { tagCounts[t] = (tagCounts[t] || 0) + 1; }));
-    const topTag = Object.keys(tagCounts).length > 0 ? Object.entries(tagCounts).sort((a, b) => b[1] - a[1])[0][0] : null;
-
-    const completedCount = weekNotes.filter(n => n.isCompleted).length;
-    const completionRate = weekNotes.length > 0 ? Math.round((completedCount / weekNotes.length) * 100) : 0;
 
     weeklyReportSection.innerHTML = `
         <div class="weekly-report-card">
@@ -542,23 +560,23 @@ function renderWeeklyReport() {
             </div>
             <div class="weekly-stats">
                 <div class="weekly-stat">
-                    <div class="weekly-stat-value">${weekNotes.length}</div>
+                    <div class="weekly-stat-value">${notesCount}</div>
                     <div class="weekly-stat-label">Notes This Week</div>
                 </div>
                 <div class="weekly-stat">
-                    <div class="weekly-stat-value">${mostActiveDay.slice(0, 3)}</div>
+                    <div class="weekly-stat-value">${activeDay}</div>
                     <div class="weekly-stat-label">Most Active Day</div>
                 </div>
                 <div class="weekly-stat">
-                    <div class="weekly-stat-value">${topTag ? '#' + topTag : '—'}</div>
+                    <div class="weekly-stat-value">${topTopic}</div>
                     <div class="weekly-stat-label">Top Topic</div>
                 </div>
                 <div class="weekly-stat">
-                    <div class="weekly-stat-value">${completionRate}%</div>
+                    <div class="weekly-stat-value">${rate}</div>
                     <div class="weekly-stat-label">Done Rate</div>
                 </div>
             </div>
-            <p class="weekly-insight">You were most productive on <strong>${mostActiveDay}</strong>.</p>
+            <p class="weekly-insight">${insightText}</p>
         </div>
     `;
 }
