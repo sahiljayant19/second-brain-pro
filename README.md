@@ -11,12 +11,12 @@
 - **Today's Focus:** Automatically highlights your daily tasks.
 - **Weekly Report:** Track your productivity and completion rate.
 
-### � AI-Powered Summarization
+### 🤖 AI-Powered Summarization
 - **Real AI Summary:** Generate intelligent summaries using OpenRouter API
 - **Node.js Backend:** Fast and secure backend for AI processing
 - **Smart Analysis:** Get focus areas, next steps, and concise summaries
 
-### �🧘‍♂️ Focus Mode
+### 🧘‍♂️ Focus Mode
 - **Distraction-Free:** A centered reading view optimized for focus.
 - **Pomodoro Timer:** Built-in timer with custom durations.
 - **Immersive UI:** Smooth animations to help you stay in the zone.

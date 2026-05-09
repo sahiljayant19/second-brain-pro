@@ -1,6 +1,9 @@
-// Store state
+// ── State Management ────────────────────────────────────────────────────────
+// Notes and reflections are persisted in LocalStorage
 let notes = JSON.parse(localStorage.getItem('secondBrainNotes')) || [];
 let reflections = JSON.parse(localStorage.getItem('secondBrainReflections')) || [];
+
+// UI state variables
 let currentFilter = 'all';
 let searchQuery = '';
 let currentView = 'dashboard';
@@ -12,6 +15,7 @@ let focusTimerInterval = null;
 let focusAlarmInterval = null;
 let focusTimeLeft = 0;
 
+// ── Persistence Helpers ─────────────────────────────────────────────────────
 function saveNotes() {
     localStorage.setItem('secondBrainNotes', JSON.stringify(notes));
 }
@@ -28,14 +32,17 @@ function formatDate(isoString) {
     return new Date(isoString).toLocaleDateString('en-US', options);
 }
 
-// ── Smart Connections Logic ─────────────────────────────────────────────
+// ── Smart Connections Logic ────────────────────────────────────────────────
+// Filter out common words to extract meaningful keywords
 const STOP_WORDS = new Set(['the', 'is', 'in', 'at', 'of', 'a', 'an', 'and', 'or', 'to', 'it', 'that', 'was', 'for', 'on', 'are', 'as', 'with', 'be', 'this', 'have', 'from', 'he', 'she', 'they', 'we', 'you', 'i', 'my', 'your', 'his', 'her', 'its', 'our', 'their', 'do', 'did', 'but', 'by', 'not', 'what', 'which', 'who', 'will', 'has', 'had', 'been', 'more']);
 
+// Clean text and split into tokens for comparison
 function tokenize(text) {
     if (!text) return [];
     return text.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w.length > 2 && !STOP_WORDS.has(w));
 }
 
+// Find top 3 notes with the most shared tokens (keywords/tags)
 function findRelatedNotes(note, allNotes) {
     const noteTokens = new Set([...tokenize(note.title), ...tokenize(note.description), ...note.tags.map(t => t.toLowerCase())]);
     const scores = allNotes
@@ -95,6 +102,9 @@ const drawerThemeToggleBtn = document.getElementById('drawerThemeToggleBtn');
 const mobileAddNoteBtn = document.getElementById('mobileAddNoteBtn');
 const mobileDeleteAllBtn = document.getElementById('mobileDeleteAllBtn');
 
+// ── UI Rendering Logic ─────────────────────────────────────────────────────
+
+// Build and display the tag filter buttons based on active tags in notes
 function renderTags() {
     const allTags = new Set();
     notes.forEach(note => {
@@ -120,6 +130,7 @@ function renderTags() {
     });
 }
 
+// Main render loop for the notes grid
 function renderNotes() {
     updateDashboard();
     renderTodaysFocus();
@@ -127,10 +138,12 @@ function renderNotes() {
 
     let filteredNotes = notes;
 
+    // Apply tag filter
     if (currentFilter !== 'all') {
         filteredNotes = filteredNotes.filter(note => note.tags.includes(currentFilter));
     }
 
+    // Apply search query
     if (searchQuery) {
         filteredNotes = filteredNotes.filter(note =>
             note.title.toLowerCase().includes(searchQuery) ||
@@ -139,6 +152,7 @@ function renderNotes() {
         );
     }
 
+    // Sort: Incomplete first, then by importance
     filteredNotes.sort((a, b) => {
         if (a.isCompleted !== b.isCompleted) return a.isCompleted ? 1 : -1;
         return (b.isImportant ? 1 : 0) - (a.isImportant ? 1 : 0);
@@ -183,6 +197,9 @@ function createNoteCardHTML(note) {
                     <span class="note-date">${formatDate(note.date)}</span>
                 </div>
                 <div class="note-actions">
+                    <button class="edit-btn" title="Edit note">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    </button>
                     <button class="focus-btn" title="Focus Mode">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
                     </button>
@@ -223,6 +240,7 @@ function createNoteCardHTML(note) {
     `;
 }
 
+// ── Theme Management ────────────────────────────────────────────────────────
 function applyTheme() {
     document.documentElement.setAttribute('data-theme', isLightMode ? 'light' : 'dark');
     const sunIcons = document.querySelectorAll('.sun-icon');
@@ -237,6 +255,8 @@ function toggleTheme() {
     saveTheme(isLightMode);
     applyTheme();
 }
+// ── Focus Mode ─────────────────────────────────────────────────────────────
+// Implements a Pomodoro-style timer and immersive reading view
 function setupFocusMode() {
     const focusModal = document.getElementById('focusModal');
     const exitBtn = document.getElementById('exitFocusBtn');
@@ -375,6 +395,23 @@ function openFocusMode(id) {
     `;
     document.getElementById('focusModal').classList.add('active');
 }
+
+function openEditModal(id) {
+    const note = notes.find(n => n.id === id);
+    if (!note) return;
+
+    document.getElementById('modalTitle').textContent = 'Edit Note';
+    document.getElementById('editingNoteId').value = note.id;
+    document.getElementById('noteTitle').value = note.title;
+    document.getElementById('noteDescription').value = note.description;
+    document.getElementById('noteTags').value = note.tags.join(', ');
+
+    addNoteModal.classList.add('active');
+    document.getElementById('noteTitle').focus();
+}
+
+// ── Reflections ─────────────────────────────────────────────────────────────
+// Allows users to write free-form daily thoughts separate from notes
 function saveReflection() {
     const input = document.getElementById('reflectionInput');
     const text = input.value.trim();
@@ -426,6 +463,8 @@ function renderReflections() {
         });
     });
 }
+// ── Dashboard & Insights ──────────────────────────────────────────────────
+// Updates statistics and personalized insights on the dashboard
 function updateDashboard() {
     if (!totalNotesCount) return;
     totalNotesCount.textContent = notes.length;
@@ -580,7 +619,8 @@ function renderWeeklyReport() {
         </div>
     `;
 }
-// Initialize
+// ── Navigation & Initialization ───────────────────────────────────────────
+// Main bootstrapper
 function init() {
     applyTheme();
     renderNotes();
@@ -626,6 +666,7 @@ function switchView(view) {
     renderNotes();
 }
 
+// Handles sidebar/drawer navigation between different views
 function setupMobileNav() {
     hamburgerBtn.addEventListener('click', () => {
         mobileNavDrawer.classList.add('open');
@@ -651,8 +692,12 @@ function setupMobileNav() {
     window.closeMobileDrawer = closeDrawer;
 }
 
+// ── Event Listeners ───────────────────────────────────────────────────────
 function setupEventListeners() {
+    // Modal controls
     addNoteBtn.addEventListener('click', () => {
+        document.getElementById('modalTitle').textContent = 'Create New Note';
+        document.getElementById('editingNoteId').value = '';
         addNoteModal.classList.add('active');
         document.getElementById('noteTitle').focus();
     });
@@ -661,6 +706,8 @@ function setupEventListeners() {
         btn.addEventListener('click', () => {
             addNoteModal.classList.remove('active');
             addNoteForm.reset();
+            document.getElementById('editingNoteId').value = '';
+            document.getElementById('modalTitle').textContent = 'Create New Note';
         });
     });
 
@@ -671,36 +718,52 @@ function setupEventListeners() {
         });
     });
 
+    // Form submission (Create/Edit)
     addNoteForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const title = document.getElementById('noteTitle').value;
         const description = document.getElementById('noteDescription').value;
         const tagsInput = document.getElementById('noteTags').value;
         const tags = tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+        const editingId = document.getElementById('editingNoteId').value;
 
-        const newNote = {
-            id: Date.now().toString(),
-            title, description, tags,
-            isImportant: false,
-            isCompleted: false,
-            date: new Date().toISOString()
-        };
+        if (editingId) {
+            const noteIndex = notes.findIndex(n => n.id === editingId);
+            if (noteIndex !== -1) {
+                notes[noteIndex] = {
+                    ...notes[noteIndex],
+                    title, description, tags
+                };
+            }
+        } else {
+            const newNote = {
+                id: Date.now().toString(),
+                title, description, tags,
+                isImportant: false,
+                isCompleted: false,
+                date: new Date().toISOString()
+            };
+            notes.unshift(newNote);
+        }
 
-        notes.unshift(newNote);
         saveNotes();
         renderNotes();
         renderTags();
 
         addNoteModal.classList.remove('active');
         addNoteForm.reset();
+        document.getElementById('editingNoteId').value = '';
+        document.getElementById('modalTitle').textContent = 'Create New Note';
     });
 
+    // Search functionality
     searchInput.addEventListener('input', (e) => {
         searchQuery = e.target.value.toLowerCase();
         if (searchQuery && currentView !== 'allNotes') switchView('allNotes');
         renderNotes();
     });
 
+    // Sidebar navigation
     navDashboardBtn.addEventListener('click', () => switchView('dashboard'));
     navAllNotesBtn.addEventListener('click', () => switchView('allNotes'));
     navPriorityBtn.addEventListener('click', () => switchView('priority'));
@@ -719,13 +782,13 @@ function setupEventListeners() {
         });
     }
 
-    // Delete All
+    // Bulk deletion
     deleteAllNotesBtn.addEventListener('click', () => deleteAllModal.classList.add('active'));
     if (mobileDeleteAllBtn) mobileDeleteAllBtn.addEventListener('click', () => { deleteAllModal.classList.add('active'); closeMobileDrawer(); });
     closeDeleteAllModals.forEach(btn => btn.addEventListener('click', () => deleteAllModal.classList.remove('active')));
     confirmDeleteAllBtn.addEventListener('click', () => { notes = []; saveNotes(); renderNotes(); renderTags(); deleteAllModal.classList.remove('active'); });
 
-    // Global Action Delegation
+    // Global action delegation (Edit, Delete, Star, Complete, Summarize)
     document.body.addEventListener('click', (e) => {
         const card = e.target.closest('.note-card');
         if (!card || !card.dataset.id) return;
@@ -734,6 +797,8 @@ function setupEventListeners() {
         if (e.target.closest('.delete-btn')) {
             noteToDeleteId = id;
             deleteNoteModal.classList.add('active');
+        } else if (e.target.closest('.edit-btn')) {
+            openEditModal(id);
         } else if (e.target.closest('.btn-success')) {
             generateSummary(id);
         } else if (e.target.closest('.complete-btn')) {
@@ -747,7 +812,7 @@ function setupEventListeners() {
         }
     });
 
-    // Suggested Tag Delegation
+    // Intelligent tag suggestions based on description content
     suggestedTagsContainer.addEventListener('click', (e) => {
         if (e.target.classList.contains('suggested-tag')) {
             const tag = e.target.dataset.tag;
@@ -758,7 +823,7 @@ function setupEventListeners() {
         }
     });
 
-    // Close Modals on Backdrop Click
+    // Modal backdrop close
     [addNoteModal, deleteNoteModal, deleteAllModal].forEach(modal => {
         modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
     });
@@ -773,7 +838,7 @@ function setupEventListeners() {
         }
     });
 
-    // Tag Suggestion Engine
+    // Keyword analysis for real-time tag suggestions
     noteDescription.addEventListener('input', () => {
         const text = noteDescription.value.toLowerCase();
         const keywords = { 'study': 'Study', 'exam': 'Study', 'learn': 'Study', 'money': 'Finance', 'expense': 'Finance', 'budget': 'Finance', 'work': 'Work', 'project': 'Work', 'meeting': 'Work', 'idea': 'Ideas', 'brainstorm': 'Ideas' };
@@ -798,29 +863,8 @@ function setupEventListeners() {
     });
 }
 
-// function generateSummary(id) {
-//     const note = notes.find(n => n.id === id);
-//     if (!note) return;
-//     const summaryContainer = document.getElementById(`summary-${id}`);
-//     const contentDiv = summaryContainer.querySelector('.ai-summary-content');
-//     summaryContainer.classList.add('visible');
-//     contentDiv.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
-//     setTimeout(() => {
-//         let text = note.description.trim();
-//         let sentences = text.split(/(?<=\.)\s+/);
-//         let summaryText = text.length === 0 ? "Empty note." : (sentences.length === 1 && text.length < 60 ? text : sentences[0] + (sentences.length > 2 ? " " + sentences[sentences.length - 1] : ""));
-//         if (summaryText.length > 120) summaryText = summaryText.substring(0, 117) + "...";
-//         contentDiv.innerHTML = `<span class="typing-text"></span>`;
-//         const textSpan = contentDiv.querySelector('.typing-text');
-//         let i = 0;
-//         const typeWriter = setInterval(() => {
-//             if (i < summaryText.length) { textSpan.textContent += summaryText.charAt(i++); }
-//             else clearInterval(typeWriter);
-//         }, 15);
-//     }, 600);
-// }
-
-
+// ── AI Features ─────────────────────────────────────────────────────────────
+// Calls backend API to generate a summary and displays it with a typewriter effect
 async function generateSummary(id) {
     const note = notes.find(n => n.id === id);
     if (!note) return;
@@ -844,6 +888,7 @@ async function generateSummary(id) {
         const data = await res.json();
         const summaryText = data.summary || "Failed to generate summary";
 
+        // Display summary with typewriter effect
         contentDiv.innerHTML = `<span class="typing-text"></span>`;
         const textSpan = contentDiv.querySelector('.typing-text');
         let i = 0;
@@ -863,7 +908,3 @@ async function generateSummary(id) {
 
 // Boot the app
 document.addEventListener('DOMContentLoaded', init);
-
-
-
-// for Backend

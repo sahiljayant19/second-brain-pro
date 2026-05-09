@@ -557,6 +557,7 @@ input[type=number] {
 }
 
 .focus-btn,
+.edit-btn,
 .star-btn,
 .delete-btn {
     background: none;
@@ -572,6 +573,11 @@ input[type=number] {
 }
 
 .focus-btn:hover {
+    color: var(--primary);
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.edit-btn:hover {
     color: var(--primary);
     background: rgba(99, 102, 241, 0.1);
 }
