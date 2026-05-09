@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Second Brain Pro</title>
-    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="icon" type="image/png" href="./src/img/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 
@@ -318,7 +318,7 @@
                             <div class="guide-icon">📊</div>
                             <h3>Insight Dashboard</h3>
                             <p>Track your productivity with real-time stats. See your total note count, discover your
-                                most used tags, and get personalized insights into your focus areas.</p>
+                                most used tags, and get personalized insights into your focus areas.</clearp>
                         </div>
                         <div class="guide-card">
                             <div class="guide-icon">⭐</div>
@@ -420,14 +420,15 @@
         </footer>
     </div>
 
-    <!-- Add Note Modal -->
+    <!-- Add/Edit Note Modal -->
     <div id="addNoteModal" class="modal-overlay">
         <div class="modal">
             <div class="modal-header">
-                <h2>Create New Note</h2>
+                <h2 id="modalTitle">Create New Note</h2>
                 <button class="icon-btn close-modal">&times;</button>
             </div>
             <form id="addNoteForm">
+                <input type="hidden" id="editingNoteId">
                 <div class="form-group">
                     <label for="noteTitle">Title</label>
                     <input type="text" id="noteTitle" required placeholder="e.g. Project Ideas">

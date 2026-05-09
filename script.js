@@ -798,27 +798,72 @@ function setupEventListeners() {
     });
 }
 
-function generateSummary(id) {
+// function generateSummary(id) {
+//     const note = notes.find(n => n.id === id);
+//     if (!note) return;
+//     const summaryContainer = document.getElementById(`summary-${id}`);
+//     const contentDiv = summaryContainer.querySelector('.ai-summary-content');
+//     summaryContainer.classList.add('visible');
+//     contentDiv.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+//     setTimeout(() => {
+//         let text = note.description.trim();
+//         let sentences = text.split(/(?<=\.)\s+/);
+//         let summaryText = text.length === 0 ? "Empty note." : (sentences.length === 1 && text.length < 60 ? text : sentences[0] + (sentences.length > 2 ? " " + sentences[sentences.length - 1] : ""));
+//         if (summaryText.length > 120) summaryText = summaryText.substring(0, 117) + "...";
+//         contentDiv.innerHTML = `<span class="typing-text"></span>`;
+//         const textSpan = contentDiv.querySelector('.typing-text');
+//         let i = 0;
+//         const typeWriter = setInterval(() => {
+//             if (i < summaryText.length) { textSpan.textContent += summaryText.charAt(i++); }
+//             else clearInterval(typeWriter);
+//         }, 15);
+//     }, 600);
+// }
+
+
+async function generateSummary(id) {
     const note = notes.find(n => n.id === id);
     if (!note) return;
+
     const summaryContainer = document.getElementById(`summary-${id}`);
     const contentDiv = summaryContainer.querySelector('.ai-summary-content');
     summaryContainer.classList.add('visible');
     contentDiv.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
-    setTimeout(() => {
-        let text = note.description.trim();
-        let sentences = text.split(/(?<=\.)\s+/);
-        let summaryText = text.length === 0 ? "Empty note." : (sentences.length === 1 && text.length < 60 ? text : sentences[0] + (sentences.length > 2 ? " " + sentences[sentences.length - 1] : ""));
-        if (summaryText.length > 120) summaryText = summaryText.substring(0, 117) + "...";
-        contentDiv.innerHTML = `<em>TL;DR:</em> <span class="typing-text"></span>`;
+
+    try {
+        const res = await fetch("http://localhost:8000/api/ai/summarize", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                note: note.description,
+            }),
+        });
+
+        const data = await res.json();
+        const summaryText = data.summary || "Failed to generate summary";
+
+        contentDiv.innerHTML = `<span class="typing-text"></span>`;
         const textSpan = contentDiv.querySelector('.typing-text');
         let i = 0;
         const typeWriter = setInterval(() => {
-            if (i < summaryText.length) { textSpan.textContent += summaryText.charAt(i++); }
-            else clearInterval(typeWriter);
+            if (i < summaryText.length) {
+                textSpan.textContent += summaryText.charAt(i++);
+            } else {
+                clearInterval(typeWriter);
+            }
         }, 15);
-    }, 600);
+
+    } catch (error) {
+        console.error(error);
+        contentDiv.innerHTML = "<em>Failed to generate summary. Make sure the backend server is running on port 8000.</em>";
+    }
 }
 
 // Boot the app
 document.addEventListener('DOMContentLoaded', init);
+
+
+
+// for Backend
