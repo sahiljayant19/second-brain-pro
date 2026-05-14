@@ -15,7 +15,7 @@ let focusTimerInterval = null;
 let focusAlarmInterval = null;
 let focusTimeLeft = 0;
 
-const API_URL =
+const API_URL = 
     window.location.hostname === "localhost"
         ? "http://localhost:8000"
         : "https://second-brain-pro.onrender.com";
@@ -449,22 +449,7 @@ function renderReflections() {
 
     document.querySelectorAll('.generate-reflection-summary').forEach(btn => {
         btn.addEventListener('click', () => {
-            const id = btn.dataset.id;
-            const reflection = reflections.find(r => r.id === id);
-            const container = document.getElementById('rsummary-' + id);
-            if (!reflection || !container) return;
-            container.innerHTML = '<em style="color:var(--text-secondary)">Generating summary...</em>';
-            setTimeout(() => {
-                const sentences = reflection.text.split(/(?<=\.)\s+/);
-                const summary = sentences[0].length > 120 ? sentences[0].substring(0, 117) + '...' : sentences[0];
-                let i = 0;
-                container.innerHTML = '<em>TL;DR:</em> <span class="typing-text"></span>';
-                const span = container.querySelector('.typing-text');
-                const timer = setInterval(() => {
-                    if (i < summary.length) { span.textContent += summary.charAt(i++); }
-                    else clearInterval(timer);
-                }, 15);
-            }, 600);
+            generateReflectionSummary(btn.dataset.id);
         });
     });
 }
@@ -908,6 +893,47 @@ async function generateSummary(id) {
     } catch (error) {
         console.error(error);
         contentDiv.innerHTML = "<em>Failed to generate summary. Make sure the backend server is running on port 8000.</em>";
+    }
+}
+
+async function generateReflectionSummary(id) {
+    const reflection = reflections.find(r => r.id === id);
+    
+    if (!reflection) return;
+
+    const container = document.getElementById(`rsummary-${id}`);
+    if (!container) return;
+
+    container.innerHTML = `<div class="typing-indicator" style="margin-top: 10px;"><span></span><span></span><span></span></div>`;
+
+    try {
+        const res = await fetch(`${API_URL}/api/ai/summarize`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                note: reflection.text,
+            }),
+        });
+
+        const data = await res.json();
+        const summaryText = data.summary || "Failed to generate summary";
+
+        container.innerHTML = '<em style="color:var(--text-secondary); display: block; margin-top: 10px;"></em> <span class="typing-text"></span>';
+        const textSpan = container.querySelector('.typing-text');
+        let i = 0;
+        const typeWriter = setInterval(() => {
+            if (i < summaryText.length) {
+                textSpan.textContent += summaryText.charAt(i++);
+            } else {
+                clearInterval(typeWriter);
+            }
+        }, 15);
+
+    } catch (error) {
+        console.error(error);
+        container.innerHTML = "<em style='color:var(--text-secondary); display: block; margin-top: 10px;'>Failed to generate summary. Make sure the backend server is running.</em>";
     }
 }
 
