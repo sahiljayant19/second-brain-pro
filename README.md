@@ -1,50 +1,67 @@
 # 🧠 Second Brain Pro
 
-**Second Brain Pro** is a clean and private note-taking app with AI-powered summarization. It helps you capture ideas, focus on your work with a built-in timer, and see your progress through a simple dashboard. Your notes are saved locally on your browser, so your data never leaves your device.
+![Second Brain Pro Banner](src/img/banner.png)
+
+**Second Brain Pro** is a premium, private note-taking ecosystem designed for high-performance individuals. Combining AI-powered summarization with a focus-driven UI, it helps you capture ideas, organize thoughts, and maintain peak productivity.
+
+---
+
+## 🌐 Live Deployment
+
+The project is fully deployed and ready to use:
+
+- **Frontend:** Hosted on [Vercel](https://second-brain-pro-app.vercel.app) (Optimized Static Hosting)
+- **Backend:** Hosted on [Render](https://second-brain-pro.onrender.com) (Node.js & OpenRouter Integration)
+- **API Status:** Live at `https://second-brain-pro.onrender.com/health`
 
 ---
 
 ## ✨ Key Features
 
-### 📊 Dashboard
-- **Total Stats:** See your note count and most used tags at a glance.
-- **Today's Focus:** Automatically highlights your daily tasks.
-- **Weekly Report:** Track your productivity and completion rate.
+### 📊 Intelligent Dashboard
+- **Total Stats:** Real-time note count and tag distribution insights.
+- **Today's Focus:** Smart filtering for your daily priorities.
+- **Weekly Report:** Advanced productivity tracking and completion rates.
 
-### 🤖 AI-Powered Summarization
-- **Real AI Summary:** Generate intelligent summaries using OpenRouter API
-- **Node.js Backend:** Fast and secure backend for AI processing
-- **Smart Analysis:** Get focus areas, next steps, and concise summaries
+### 🤖 AI-Powered Insights
+- **Smart Summarization:** Generate concise summaries using the **OpenRouter API**.
+- **Deep Analysis:** Extracts focus areas and actionable next steps from your notes.
+- **Node.js Engine:** Robust backend processing for seamless AI interactions.
 
-### 🧘‍♂️ Focus Mode
-- **Distraction-Free:** A centered reading view optimized for focus.
-- **Pomodoro Timer:** Built-in timer with custom durations.
-- **Immersive UI:** Smooth animations to help you stay in the zone.
+### 🧘‍♂️ Immersive Focus Mode
+- **Glassmorphism UI:** A distraction-free reading environment.
+- **Pomodoro Timer:** Built-in productivity timer with custom durations.
+- **Haptic Feedback:** Visual and auditory cues for work/break cycles.
 
 ### 🔗 Smart Connections
-- **Automatic Linking:** Finds related notes based on your content.
+- **Contextual Linking:** Automatically discovers related notes based on content analysis.
+- **Daily Journaling:** Dedicated reflections space for long-term growth.
 
-### ✍️ Daily Reflections
-- **Journaling:** Capture your daily thoughts and learnings.
-- **AI Summarizer:** Generate quick summaries of your reflections.
+---
 
-### 🌓 Responsive Design
-- **Themes:** Toggle between high-contrast Dark and Light modes.
-- **Mobile-First:** Perfectly optimized for phones, tablets, and desktops.
+## 🛠️ Tech Stack
+
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
+![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js installed
-- OpenRouter API key
+- **Node.js** (v16+)
+- **OpenRouter API Key** (for AI features)
 
-### Setup
+### Local Setup
 
 1. **Clone the repository**
    ```bash
-   git clone <your-repo-url>
+   git clone https://github.com/sahiljayant19/second-brain-pro.git
    cd second-brain-pro
    ```
 
@@ -53,72 +70,41 @@
    npm install
    ```
 
-3. **Set up environment variables**
-   Create a `.env` file in the `backend` directory:
-   ```
+3. **Configure Environment Variables**
+   Create a `.env` file in the `/backend` directory:
+   ```env
    PORT=8000
    OPENROUTER_API_KEY=your_openrouter_api_key_here
    ```
 
-4. **Start the backend server**
+4. **Launch the Engine**
    ```bash
-   cd backend
-   node server.js
+   npm start # Starts the backend server
    ```
 
-5. **Open the frontend**
-   Simply open `index.html` in your browser or serve it with a static file server.
+5. **Open the App**
+   Serve `index.html` via Live Server or simply open it in your browser.
 
 ---
 
-## 🚀 How to Use
+## 🔐 Privacy & Security
 
-1. **Add Note:** Use the "New Note" button to capture an idea.
-2. **Tags:** Use commas (e.g., `work, study`) to categorize your thoughts.
-3. **AI Summary:** Click the "Summarize" button on any note to get an AI-generated summary.
-4. **Focus:** Click the "Focus" icon on any note to start a deep work session.
-5. **Priority:** Star important notes to see them in the Priority view.
+- **Local-First:** Your notes are stored exclusively in your browser's `LocalStorage`.
+- **Zero Tracking:** No analytics, no cookies, no data collection.
+- **Secure API:** Summaries are processed securely via OpenRouter with no data retention.
 
 ---
 
-## ☁️ Deployment
+## 🤝 Contributing
 
-### Frontend (Static)
-Deploy the frontend on **Vercel** or any static hosting service:
+Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
-1. **Push** your code to a GitHub repository.
-2. **Connect** the repository to Vercel.
-3. **Deploy!** Vercel will automatically detect the `index.html` and host your app.
-
-### Backend (Node.js)
-Deploy the backend on platforms like **Render**, **Railway**, or **Heroku**:
-
-1. Set your environment variables in the deployment platform
-2. Deploy the `backend` directory
-3. Update the frontend API URL in `script.js` to match your backend URL
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ---
 
-## 🛠️ Technical Details
-
-### Frontend
-- **Stack:** Vanilla HTML5, CSS3, and JavaScript
-- **Storage:** LocalStorage (Privacy-first for notes)
-- **Performance:** Optimized for fast loading
-
-### Backend
-- **Stack:** Node.js with Express
-- **API:** OpenRouter for AI summarization
-- **CORS:** Configured for frontend-backend communication
-
----
-
-## 🔐 Privacy
-
-- Notes are stored locally in your browser's LocalStorage
-- Only the text you want to summarize is sent to the AI API
-- No user tracking or data collection
-
----
-
-*Made for simple and organized note-taking with AI-powered insights.*
+*Engineered with ❤️ for the productivity-obsessed.*

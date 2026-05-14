@@ -13,13 +13,18 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("Server is running");
-});
-
 app.use("/api/ai", aiRoutes);
 
 const PORT = process.env.PORT || 8000;
+
+app.get("/health", (req, res) => {
+  res.json({
+    message: "Server is running",
+    status: "healthy",
+    service: "second-brain-pro-backend",
+    timestamp: new Date().toString(),
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
