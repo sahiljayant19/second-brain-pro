@@ -15,6 +15,11 @@ let focusTimerInterval = null;
 let focusAlarmInterval = null;
 let focusTimeLeft = 0;
 
+const API_URL =
+    window.location.hostname === "localhost"
+        ? "http://localhost:8000"
+        : "https://second-brain-pro.onrender.com";
+
 // ── Persistence Helpers ─────────────────────────────────────────────────────
 function saveNotes() {
     localStorage.setItem('secondBrainNotes', JSON.stringify(notes));
@@ -875,7 +880,7 @@ async function generateSummary(id) {
     contentDiv.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
 
     try {
-        const res = await fetch("https://second-brain-pro.onrender.com/api/ai/summarize", {
+        const res = await fetch(`${API_URL}/api/ai/summarize`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
