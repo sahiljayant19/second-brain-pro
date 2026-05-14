@@ -1,5 +1,5 @@
 # 🧠 Second Brain Pro
-
+   
 ![Second Brain Pro Banner](src/img/banner.png)
 
 **Second Brain Pro** is a premium, private note-taking ecosystem designed for high-performance individuals. Combining AI-powered summarization with a focus-driven UI, it helps you capture ideas, organize thoughts, and maintain peak productivity.
